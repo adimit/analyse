@@ -1,0 +1,17 @@
+Name: Analysis
+Version: 0.0.1
+Synopsis: An analysis tool for the BNC corpus.
+License: BSD3
+Author: Aleksandar Dimitrov
+Maintainer: Aleksandar Dimitrov <aleks.dimitrov@gmail.com>
+Build-Depends: base
+Cabal-Version: >=0.12
+build-type: Simple
+
+executable analyse
+    hs-source-dirs: src
+    -- other-modules: Analyse.Language, Analyse.Types
+    main-is: Main.hs
+    ghc-options: -Wall -O2 -fglasgow-exts
+    ghc-prof-options: -prof -auto-all
+    build-depends: base, containers, bytestring, array, haskell98

@@ -1,0 +1,24 @@
+Analysis tool for the CAFE class.
+Author: Aleksandar Dimitrov
+
+Depends on the Glasgow Haskell Compiler, 6.10.x (www.haskell.or/ghc).  To build
+it, it's advisable to have the Cabal build system installed (www.haskell.org/cabal).
+
+Then it's as easy as typing:
+
+> cabal configure
+> cabal build
+> cabal install
+
+at a command line (or just 'cabal configure && cabal install'). After
+installation, executables can be found in ~/.cabal/bin or ./dist/build/analyse.
+
+Since this system does not (for now) depend on 3rd party libraries, one can also
+build it directly with ghc:
+
+> cd ./src
+> ghc --make -O2 -fglasgow-exts -o analyse -Wall Main.hs
+
+Invocation of the executable:
+
+analyse [-v] -c CORPUS -l {german,english}
