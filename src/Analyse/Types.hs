@@ -19,6 +19,11 @@ class Token t where
     getToken :: t -> TokenData
     getTag :: t -> Tag
 
+data (Token a) => Analysis a = Analysis { articleBaseline :: Double
+                                        , prepositionBaseline :: Double
+                                        , corpusSize :: Int64
+                                        }
+
 data SimpleToken = SimpleToken { simpleToken :: TokenData
                                , simpleTag   :: Tag }
 data MorphToken = MorphToken { morphToken :: TokenData
@@ -64,7 +69,8 @@ instance Show Morphology where
 type FreqMap a = M.Map a Int64
 
 data Language = Language { articleTags     :: [Tag]
-                         , prepositionTags :: [Tag] }
+                         , prepositionTags :: [Tag] 
+                         , name :: String }
 
 wrap :: [a] -> [a] -> [a] -> [a]
 wrap s a b = a ++ s ++ b

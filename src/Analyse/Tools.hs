@@ -1,4 +1,4 @@
-module Analyse.Tools (filterForTags,freqMap,top,makeCorpus,totalBaseline) where
+module Analyse.Tools (filterForTags,freqMap,top,makeCorpus,totalBaseline,makeSimpleToken,makeMorphToken) where
 
 import qualified Data.ByteString.Lazy.Char8 as C
 import qualified Data.Map as M
