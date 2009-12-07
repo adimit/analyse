@@ -9,9 +9,9 @@ import Data.Char (toLower)
 import Analyse.Types
 
 -- | Given a list of tags, filter a corpus for all words containing these tags.
-filterForTags :: [Tag] -> Corpus Token -> Corpus Token
-filterForTags i (Corpus c) = Corpus $ filter interesting c
-    where t = (getTag t) `elem` i
+filterForTags :: (Token a ) => [Tag] -> Corpus a -> Corpus a
+filterForTags i (Corpus c) = Corpus $ filter f c
+    where f t = (getTag t) `elem` i
 
 -- | Calculates the frequency of tokens (exact matches over the Corpus' Token!)
 freqMap :: (Token a) => Corpus a -> FreqMap
@@ -20,8 +20,8 @@ freqMap (Corpus c) = foldl' increment M.empty c
 
 -- | Sorts a frequency map by number of tokens. Also filters the map by the list of
 -- tags it is given.
-top :: [Tag] -> FreqMap -> [(a,Int64)]
-top tags freqs = sortBy sndPair (filter (\((Token _ t),_) -> t `elem` tags) $ M.toList freqs)
+top :: (Token a) => [Tag] -> FreqMap -> [(a,Int64)]
+top tags freqs = sortBy sndPair (filter (\(t,_) -> (getTag t) `elem` tags) $ M.toList freqs)
     where sndPair (_,a) (_,b) = compare b a
 
 -- | Given a function to handle each line, make a corpus out of the given ByteString.
@@ -38,5 +38,5 @@ makeMorphToken :: [C.ByteString] -> StdMorphToken
 makeMorphToken [] = MorphToken [] C.empty Nothing
 makeMorphToken (m:s) = MorphToken (map (C.pack . (map toLower) . C.unpack) (tail s)) (head s) m
 
-totalBaseline :: (forall a) => [(a,Int64)] -> Double
+totalBaseline ::  [(a,Int64)] -> Double
 totalBaseline ts = ((fromIntegral . snd . head $ ts)/(fromIntegral (foldl' (\n (_,i) -> n+i) 0 ts)))

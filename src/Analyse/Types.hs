@@ -1,4 +1,4 @@
-module Analyse.Types (Token(..), Corpus(..), Tag(..), FreqMap, Language(..)) where
+module Analyse.Types (SimpleToken(..), MorphToken(..), Token(..), Corpus(..), Tag(..), FreqMap, Language(..)) where
 
 import Data.Int (Int64)
 import qualified Data.Map as M
