@@ -4,19 +4,29 @@ import Data.Int (Int64)
 import qualified Data.Map as M
 import qualified Data.ByteString.Lazy.Char8 as C
 
-data Token = SimpleToken { simpleToken :: TokenData
-                         , simpleTag   :: Tag }
-           | MorphToken  { morphToken :: TokenData
-                         , morphTag   :: Tag
-                         , morphology :: Morphology } deriving (Eq,Ord)
+class Token t where
+    getToken :: t -> TokenData
+    getTag :: t -> Tag
 
-token :: Token -> TokenData
-token (MorphToken t _ _) = t
-token (SimpleToken t _)  = t
+data SimpleToken = SimpleToken { simpleToken :: TokenData
+                               , simpleTag   :: Tag }
+data MorphToken = MorphToken { morphToken :: TokenData
+                             , morphTag   :: Tag
+                             , morphology :: Morphology } deriving (Eq,Ord)
 
-tag :: Token -> Tag
-tag (MorphToken _ t _) = t
-tag (SimpleToken _ t) = t
+instance Token SimpleToken where
+    getToken = simpleToken
+    getTag   = simpleTag
+
+instance Token MorphToken where
+    getToken = morphToken
+    getTag   = morphTag
+
+instance Show SimpleToken where
+    show (SimpleToken td t) = unwords $ [show td,show t]
+
+instance Show MorphToken where
+    show (MorphToken td t m) = unwords $ [show td,show t,show m]
 
 data Corpus a = Corpus { content :: [a] }
 
@@ -37,10 +47,6 @@ instance Show Morphology where
 
 -- Shorthands
 type FreqMap a = M.Map a Int64
-
-instance  Show Token where
-    show (SimpleToken w t)  = unwords [show w, show t]
-    show (MorphToken w t m) = unwords [show w, show t, show m]
 
 data Language = Language { articleTags     :: [Tag]
                          , prepositionTags :: [Tag] }
