@@ -1,6 +1,17 @@
-module Analyse.Types (SimpleToken(..), MorphToken(..), Token(..), Corpus(..), Tag(..), FreqMap, Language(..)) where
+module Analyse.Types 
+    (SimpleToken(..)
+    , MorphToken(..)
+    , TokenData(..)
+    , Morphology(..)
+    , Token(..)
+    , Corpus(..)
+    , Tag(..)
+    , FreqMap
+    , Language(..)
+    , lowercase) where
 
 import Data.Int (Int64)
+import Data.Char (toLower)
 import qualified Data.Map as M
 import qualified Data.ByteString.Lazy.Char8 as C
 
@@ -39,6 +50,10 @@ instance Show Tag where
 newtype TokenData = TokenData [C.ByteString] deriving (Eq,Ord)
 instance Show TokenData where
     show (TokenData t) = wrap (unwords $ map C.unpack t) "\"" "\""
+
+-- | Very inefficient lowercase method for tokendata.
+lowercase :: TokenData -> TokenData
+lowercase (TokenData ts) = TokenData $ map (C.pack . (map toLower) . C.unpack) ts
 
 -- | Morphology data is currently implemented as ByteStrings. Even worse, I know.
 newtype Morphology = Morphology C.ByteString deriving (Eq,Ord)
