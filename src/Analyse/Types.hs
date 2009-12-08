@@ -7,6 +7,7 @@ module Analyse.Types
     , Corpus(..)
     , Tag(..)
     , FreqMap
+    , FrequencyItem
     , Language(..)
     , lowercase) where
 
@@ -19,16 +20,17 @@ class Token t where
     getToken :: t -> TokenData
     getTag :: t -> Tag
 
-data (Token a) => Analysis a = Analysis { articleBaseline :: Double
-                                        , prepositionBaseline :: Double
-                                        , corpusSize :: Int64
-                                        }
+data (Token a) => Analysis a = Analysis { articleTotalBaseline :: Double
+                                        , prepositionTotalBaseline :: Double
+                                        , corpusSize :: Int64 }
 
 data SimpleToken = SimpleToken { simpleToken :: TokenData
                                , simpleTag   :: Tag }
 data MorphToken = MorphToken { morphToken :: TokenData
                              , morphTag   :: Tag
                              , morphology :: Morphology } deriving (Eq,Ord)
+
+type FrequencyItem a =  (a,Int64)
 
 instance Token SimpleToken where
     getToken = simpleToken

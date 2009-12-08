@@ -27,7 +27,7 @@ import System.Console.GetOpt
 main :: IO ()
 main = do 
     (flags,_) <- analyserOptions =<< getArgs
-    corpus <- if (optMorphology flags)
+    analysis <- if (optMorphology flags)
                  then return $ liftM (makeCorpus makeMorphToken) $ C.readFile (optCorpus flags)
                  else return $ liftM (makeCorpus makeSimpleToken) $ C.readFile (optCorpus flags)
     print "foo"
@@ -41,13 +41,13 @@ analyserOptions argv = case getOpt Permute options argv of
 
 data Options = Options { optVerbose    :: Bool
                        , optCorpus     :: FilePath
-                       , optLanguage   :: Language 
+                       , optLanguage   :: Language
                        , optMorphology :: Bool}
 
 defaultOptions :: Options
 defaultOptions = Options { optVerbose    = False
                          , optCorpus     = error "No corpus file specified."
-                         , optLanguage   = english 
+                         , optLanguage   = english
                          , optMorphology = False}
 
 options :: [OptDescr (Options -> Options)]
