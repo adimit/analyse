@@ -27,11 +27,15 @@ import System.Console.GetOpt
 main :: IO ()
 main = do 
     (flags,_) <- analyserOptions =<< getArgs
-    analysis <- if (optMorphology flags)
-                 then return $ liftM (makeCorpus makeMorphToken) $ C.readFile (optCorpus flags)
-                 else return $ liftM (makeCorpus makeSimpleToken) $ C.readFile (optCorpus flags)
-    print "foo"
+    if (optMorphology flags)
+           then print =<< (liftM (analyseMorphology . (makeCorpus makeMorphToken))  $ C.readFile (optCorpus flags))
+           else print =<< (liftM (analyseSurface    . (makeCorpus makeSimpleToken)) $ C.readFile (optCorpus flags))
 
+analyseMorphology :: Corpus MorphToken -> Analysis MorphToken
+analyseMorphology = undefined
+
+analyseSurface :: Corpus SimpleToken -> Analysis SimpleToken
+analyseSurface = undefined
 
 
 analyserOptions :: [String] -> IO (Options, [String])
@@ -42,13 +46,17 @@ analyserOptions argv = case getOpt Permute options argv of
 data Options = Options { optVerbose    :: Bool
                        , optCorpus     :: FilePath
                        , optLanguage   :: Language
-                       , optMorphology :: Bool}
+                       , optMorphology :: Bool
+                       , optWordList   :: [String]
+                       , optReplacer   :: String }
 
 defaultOptions :: Options
 defaultOptions = Options { optVerbose    = False
                          , optCorpus     = error "No corpus file specified."
                          , optLanguage   = english
-                         , optMorphology = False}
+                         , optMorphology = False
+                         , optWordList   = []
+                         , optReplacer   = [] }
 
 options :: [OptDescr (Options -> Options)]
 options = [ Option ['v'] ["verbose"]     (NoArg  (\o -> o {optVerbose = True}))
@@ -58,7 +66,10 @@ options = [ Option ['v'] ["verbose"]     (NoArg  (\o -> o {optVerbose = True}))
           , Option ['c'] ["corpus-file"] (ReqArg (\d o -> o {optCorpus = d}) "CORPUS")
                 "Corpus input file."
           , Option ['l'] ["language"]    (ReqArg (\d o -> o {optLanguage = language d}) "LANGUAGE")
-                "Corpus language to use." ]
+                "Corpus language to use." 
+          , Option ['w'] ["use-words"] (ReqArg (\d o -> o { optReplacer = head (words d), optWordList = tail (words d) }) "WORDS")
+                "Space-seperated list of words to build a specific majority baseline by. The head of the list is the master token, the tail is going to be tested against."
+          ]
 
 language :: String -> Language
 language s = case s of "german"  -> german

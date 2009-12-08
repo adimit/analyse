@@ -9,6 +9,7 @@ module Analyse.Types
     , FreqMap
     , FrequencyItem
     , Language(..)
+    , Analysis(..)
     , lowercase) where
 
 import Data.Int (Int64)
@@ -20,9 +21,14 @@ class Token t where
     getToken :: t -> TokenData
     getTag :: t -> Tag
 
-data (Token a) => Analysis a = Analysis { articleTotalBaseline :: Double
-                                        , prepositionTotalBaseline :: Double
-                                        , corpusSize :: Int64 }
+data (Token a) => Analysis a = Analysis { resultArticleTotalBaseline        :: Double
+                                        , resultPrepositionTotalBaseline    :: Double
+                                        , resultTopPrepositions             :: [a]
+                                        , resultTopArticles                 :: [a]
+                                        , resultCorpusSize                  :: Int64
+                                        , resultSpecificArticleBaseline     :: Maybe Double
+                                        , resultSpecificPrepositionBaseline :: Maybe Double
+                                        } deriving (Show)
 
 data SimpleToken = SimpleToken { simpleToken :: TokenData
                                , simpleTag   :: Tag }
