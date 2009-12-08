@@ -1,3 +1,4 @@
+{-# OPTIONS -fglasgow-exts #-}
 module Analyse.Types 
     (SimpleToken(..)
     , MorphToken(..)
@@ -76,8 +77,10 @@ instance Show Morphology where
 -- Shorthands
 type FreqMap a = M.Map a Int64
 
-data Language = Language { articleTags     :: [Tag]
-                         , prepositionTags :: [Tag] 
+data Language = forall a. Token a => Language { isArticle ::  a -> Bool
+                         , isPreposition ::  a -> Bool
+                         , isDefiniteArticle ::  a -> Bool
+                         , isIndefiniteArticle ::  a -> Bool
                          , name :: String }
 
 wrap :: [a] -> [a] -> [a] -> [a]
