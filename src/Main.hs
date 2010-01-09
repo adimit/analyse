@@ -45,7 +45,7 @@ analyserOptions argv = case getOpt Permute options argv of
 
 data Options = Options { optVerbose    :: Bool
                        , optCorpus     :: FilePath
-                       , optLanguage   :: Language
+                       , optLanguage   :: (Token a) => Language a
                        , optMorphology :: Bool
                        , optWordList   :: [String]
                        , optReplacer   :: String }
@@ -71,7 +71,7 @@ options = [ Option ['v'] ["verbose"]     (NoArg  (\o -> o {optVerbose = True}))
                 "Space-seperated list of words to build a specific majority baseline by. The head of the list is the master token, the tail is going to be tested against."
           ]
 
-language :: String -> Language
+language :: (Token a) => String -> Language a
 language s = case s of "german"  -> german
                        "english" -> english
-                       _         -> error $ "unknown language " ++ s
+                       _         -> error $ "Unknown language " ++ s
