@@ -47,10 +47,10 @@ instance Token MorphToken where
     getTag   = morphTag
 
 instance Show SimpleToken where
-    show (SimpleToken td t) = unwords $ [show td,show t]
+    show (SimpleToken td t) = unwords [show td,show t]
 
 instance Show MorphToken where
-    show (MorphToken td t m) = unwords $ [show td,show t,show m]
+    show (MorphToken td t m) = unwords [show td,show t,show m]
 
 data Corpus a = Corpus { content :: [a] }
 
@@ -66,7 +66,7 @@ instance Show TokenData where
 
 -- | Very inefficient lowercase method for tokendata.
 lowercase :: TokenData -> TokenData
-lowercase (TokenData ts) = TokenData $ map (C.pack . (map toLower) . C.unpack) ts
+lowercase (TokenData ts) = TokenData $ map (C.pack . map toLower . C.unpack) ts
 
 -- | Morphology data is currently implemented as ByteStrings. Even worse, I know.
 newtype Morphology = Morphology C.ByteString deriving (Eq,Ord)

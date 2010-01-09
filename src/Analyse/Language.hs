@@ -4,8 +4,8 @@ import Analyse.Types
 import qualified Data.ByteString.Lazy.Char8 as C
 
 german :: (Token a) => Language a
-german  = Language { isArticle     = \t -> (getTag t) `elem` germanArticleTags
-                   , isPreposition = \t -> (getTag t) `elem` germanPrepositionTags
+german  = Language { isArticle     = \t -> getTag t `elem` germanArticleTags
+                   , isPreposition = \t -> getTag t `elem` germanPrepositionTags
                    , isDefiniteArticle   = undefined
                    , isIndefiniteArticle = undefined
                    , name = "German" }
@@ -15,8 +15,8 @@ germanPrepositionTags = bs ["APPR", "APPO", "APZR"]
 
 
 english :: (Token a) => Language a
-english = Language { isArticle     = \t -> (getTag t) `elem` englishArticleTags
-                   , isPreposition = \t -> (getTag t) `elem` englishPrepositionTags
+english = Language { isArticle     = \t -> getTag t `elem` englishArticleTags
+                   , isPreposition = \t -> getTag t `elem` englishPrepositionTags
                    , isDefiniteArticle   = undefined
                    , isIndefiniteArticle = undefined
                    , name = "English" }

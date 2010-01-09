@@ -25,11 +25,11 @@ import System.Console.GetOpt
 --   putStrLn $ "\nTotal majority basline for prepositions: " ++ (show $ totalBaseline prepositions)
 
 main :: IO ()
-main = do 
+main = do
     (flags,_) <- analyserOptions =<< getArgs
-    if (optMorphology flags)
-           then print =<< (liftM (analyseMorphology . (makeCorpus makeMorphToken))  $ C.readFile (optCorpus flags))
-           else print =<< (liftM (analyseSurface    . (makeCorpus makeSimpleToken)) $ C.readFile (optCorpus flags))
+    if optMorphology flags
+           then print =<< liftM (analyseMorphology . makeCorpus makeMorphToken)  (C.readFile (optCorpus flags))
+           else print =<< liftM (analyseSurface    . makeCorpus makeSimpleToken) (C.readFile (optCorpus flags))
 
 analyseMorphology :: Corpus MorphToken -> Analysis MorphToken
 analyseMorphology = undefined
@@ -59,15 +59,15 @@ defaultOptions = Options { optVerbose    = False
                          , optReplacer   = [] }
 
 options :: [OptDescr (Options -> Options)]
-options = [ Option ['v'] ["verbose"]     (NoArg  (\o -> o {optVerbose = True}))
+options = [ Option "v" ["verbose"]     (NoArg  (\o -> o {optVerbose = True}))
                 "Print detailed info."
-          , Option ['m'] ["use-morphology"] (NoArg (\o -> o {optMorphology = True}))
+          , Option "m" ["use-morphology"] (NoArg (\o -> o {optMorphology = True}))
                 "Assume the corpus contains morphology information"
-          , Option ['c'] ["corpus-file"] (ReqArg (\d o -> o {optCorpus = d}) "CORPUS")
+          , Option "c" ["corpus-file"] (ReqArg (\d o -> o {optCorpus = d}) "CORPUS")
                 "Corpus input file."
-          , Option ['l'] ["language"]    (ReqArg (\d o -> o {optLanguage = language d}) "LANGUAGE")
+          , Option "l" ["language"]    (ReqArg (\d o -> o {optLanguage = language d}) "LANGUAGE")
                 "Corpus language to use." 
-          , Option ['w'] ["use-words"] (ReqArg (\d o -> o { optReplacer = head (words d), optWordList = tail (words d) }) "WORDS")
+          , Option "w" ["use-words"] (ReqArg (\d o -> o { optReplacer = head (words d), optWordList = tail (words d) }) "WORDS")
                 "Space-seperated list of words to build a specific majority baseline by. The head of the list is the master token, the tail is going to be tested against."
           ]
 
