@@ -9,34 +9,30 @@ import Analyse.Types
 import Analyse.Tools
 import System.Console.GetOpt
 
---   (flags,s) <- analyserOptions =<< getArgs
---   corpus <- liftM makeCorpus $ C.readFile (optCorpus flags)
---   let lang  = optLanguage flags -- for convenience and shorter lines :-)
---       freqs = (freqMap $ filterForTags ((articleTags lang) ++ (prepositionTags lang)) corpus)
---       articles     = top (articleTags lang) freqs
---       prepositions = top (prepositionTags lang) freqs
---   if (optVerbose flags)
---       then putStrLn $ show $ M.toList freqs 
---       else return ()
---   putStrLn $ "Corpus size: " ++ (show $ length (content corpus)) ++ " tokens"
---   putStrLn $ "\nTop articles: "     ++ (show $ take 10 $ articles)
---   putStrLn $ "\nTop prepositions: " ++ (show $ take 10 $ prepositions)
---   putStrLn $ "\nTotal majority basline for articles: "     ++ (show $ totalBaseline articles)
---   putStrLn $ "\nTotal majority basline for prepositions: " ++ (show $ totalBaseline prepositions)
-
 main :: IO ()
 main = do
     (flags,_) <- analyserOptions =<< getArgs
     if optMorphology flags
-           then print =<< liftM (analyseMorphology . makeCorpus makeMorphToken)  (C.readFile (optCorpus flags))
-           else print =<< liftM (analyseSurface    . makeCorpus makeSimpleToken) (C.readFile (optCorpus flags))
+           then print =<< (liftM (analyseMorphology Nothing Nothing (optLanguage flags :: Language MorphToken) . makeCorpus makeMorphToken)  (C.readFile (optCorpus flags)) :: IO (Analysis MorphToken))
+           else print =<< (liftM (analyseSurface Nothing Nothing (optLanguage flags :: Language SimpleToken) . makeCorpus makeSimpleToken) (C.readFile (optCorpus flags)) :: IO (Analysis SimpleToken))
 
-analyseMorphology :: Corpus MorphToken -> Analysis MorphToken
+analyseSurface :: Maybe SimpleToken -> Maybe SimpleToken -> Language SimpleToken -> Corpus SimpleToken -> Analysis SimpleToken
+analyseSurface art prp l (Corpus ts) = Analysis
+   { resultArticleTotalBaseline        = calculateTotalMajorityBaseline tokenDataEquality articles
+   , resultPrepositionTotalBaseline    = calculateTotalMajorityBaseline tokenDataEquality prepositions
+   , resultTopPrepositions             = take 10 prepositions
+   , resultTopArticles                 = take 10 articles
+   , resultCorpusSize                  = length ts
+   , resultSpecificArticleBaseline     = case art of
+                                              Nothing -> Nothing
+                                              Just t -> Just $ calculateMajorityBaseline (tokenDataEquality t) articles
+   , resultSpecificPrepositionBaseline = case prp of
+                                              Nothing -> Nothing
+                                              Just t -> Just $ calculateMajorityBaseline (tokenDataEquality t) prepositions
+   } where prepositions = top $ freqMap $ filter (isPreposition l) ts
+           articles     = top $ freqMap $ filter (isArticle     l) ts
+
 analyseMorphology = undefined
-
-analyseSurface :: Corpus SimpleToken -> Analysis SimpleToken
-analyseSurface = undefined
-
 
 analyserOptions :: [String] -> IO (Options, [String])
 analyserOptions argv = case getOpt Permute options argv of
@@ -66,7 +62,7 @@ options = [ Option "v" ["verbose"]     (NoArg  (\o -> o {optVerbose = True}))
           , Option "c" ["corpus-file"] (ReqArg (\d o -> o {optCorpus = d}) "CORPUS")
                 "Corpus input file."
           , Option "l" ["language"]    (ReqArg (\d o -> o {optLanguage = language d}) "LANGUAGE")
-                "Corpus language to use." 
+                "Corpus language to use."
           , Option "w" ["use-words"] (ReqArg (\d o -> o { optReplacer = head (words d), optWordList = tail (words d) }) "WORDS")
                 "Space-seperated list of words to build a specific majority baseline by. The head of the list is the master token, the tail is going to be tested against."
           ]

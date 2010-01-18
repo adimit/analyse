@@ -23,15 +23,24 @@ class Token t where
 
 data (Token a) => Analysis a = Analysis { resultArticleTotalBaseline        :: Double
                                         , resultPrepositionTotalBaseline    :: Double
-                                        , resultTopPrepositions             :: [a]
-                                        , resultTopArticles                 :: [a]
-                                        , resultCorpusSize                  :: Int64
+                                        , resultTopPrepositions             :: [FrequencyItem a]
+                                        , resultTopArticles                 :: [FrequencyItem a]
+                                        , resultCorpusSize                  :: Int
                                         , resultSpecificArticleBaseline     :: Maybe Double
                                         , resultSpecificPrepositionBaseline :: Maybe Double
-                                        } deriving (Show)
+                                        }
+
+instance (Token a, Show a) => Show (Analysis a) where
+    show a  = "Analysis results:"
+           ++ "\nCorpus size: " ++ (show $ resultCorpusSize a) 
+           ++ "\nTop Articles: " ++ (show $ resultTopArticles a)
+           ++ "\nTop Prepositions: " ++ (show $ resultTopPrepositions a)
+           ++ "\nTotal majority baseline for articles: " ++ (show $ resultArticleTotalBaseline a)
+           ++ "\nTotal majority baseline for prepositions: " ++ (show $ resultPrepositionTotalBaseline a)
 
 data SimpleToken = SimpleToken { simpleToken :: TokenData
-                               , simpleTag   :: Tag }
+                               , simpleTag   :: Tag } deriving (Eq,Ord)
+
 data MorphToken = MorphToken { morphToken :: TokenData
                              , morphTag   :: Tag
                              , morphology :: Morphology } deriving (Eq,Ord)
