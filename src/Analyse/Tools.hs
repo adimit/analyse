@@ -1,6 +1,5 @@
 module Analyse.Tools
-    ( tokenDataEquality
-    , calculateTotalMajorityBaseline
+    ( calculateTotalMajorityBaseline
     , calculateMajorityBaseline
     , filterForTags
     , freqMap
@@ -12,8 +11,7 @@ module Analyse.Tools
 import qualified Data.ByteString.Lazy.Char8 as C
 import qualified Data.Map as M
 import Data.Foldable (foldl')
-import Data.Int (Int64)
-import Data.List (sortBy,maximumBy,partition)
+import Data.List (sortBy)
 import Data.Char (toLower)
 import Analyse.Types
 
@@ -33,8 +31,6 @@ top = sortBy frequencyComparision . M.toList
 frequencyComparision :: FrequencyItem a -> FrequencyItem a -> Ordering
 frequencyComparision (_,a) (_,b) = compare b a
 
-frequencyComparision' (_,a) (_,b) = compare a b
-
 -- | Given a function to handle each line, make a corpus out of the given ByteString.
 makeCorpus :: (Token a) => ([C.ByteString] -> a) -> C.ByteString -> Corpus a
 makeCorpus f = Corpus . map (f . reverse . C.words) . C.lines
@@ -49,12 +45,9 @@ makeMorphToken :: [C.ByteString] -> MorphToken
 makeMorphToken [] = MorphToken (TokenData []) (Tag C.empty) (Morphology C.empty)
 makeMorphToken (m:s) = MorphToken (TokenData $ map (C.pack . map toLower . C.unpack) (tail s)) (Tag $ head s) (Morphology m)
 
-calculateTotalMajorityBaseline :: (Token a) => (a -> a -> Bool) -> [FrequencyItem a] -> Double
-calculateTotalMajorityBaseline f m = calculateMajorityBaseline (f . fst . head $ m) m
+calculateTotalMajorityBaseline :: (Token a) => [FrequencyItem a] -> Double
+calculateTotalMajorityBaseline m = calculateMajorityBaseline ((=|=) . fst . head $ m) m
 
 calculateMajorityBaseline :: (Token a) => (a -> Bool) -> [FrequencyItem a] -> Double
 calculateMajorityBaseline f m = fromIntegral (sumup $ filter (f . fst) m) / fromIntegral (sumup m)
     where sumup = foldl' (flip $ (+) . snd) 0
-
-tokenDataEquality :: (Token a) => a -> a -> Bool
-tokenDataEquality a b = getToken a == getToken b

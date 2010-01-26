@@ -1,9 +1,7 @@
 module Main where
 
 import System.Environment (getArgs)
-import Control.Monad (liftM)
 import qualified Data.ByteString.Lazy.Char8 as C
-import qualified Data.Map as M
 import Analyse.Language (german,english)
 import Analyse.Types
 import Analyse.Tools
@@ -12,27 +10,22 @@ import System.Console.GetOpt
 main :: IO ()
 main = do
     (flags,_) <- analyserOptions =<< getArgs
+    f <- C.readFile (optCorpus flags)
     if optMorphology flags
-           then print =<< (liftM (analyseMorphology Nothing Nothing (optLanguage flags :: Language MorphToken) . makeCorpus makeMorphToken)  (C.readFile (optCorpus flags)) :: IO (Analysis MorphToken))
-           else print =<< (liftM (analyseSurface Nothing Nothing (optLanguage flags :: Language SimpleToken) . makeCorpus makeSimpleToken) (C.readFile (optCorpus flags)) :: IO (Analysis SimpleToken))
+                    then putStrLn . show $ analyse (optLanguage flags) (makeCorpus makeMorphToken  f)
+                    else putStrLn . show $ analyse (optLanguage flags) (makeCorpus makeSimpleToken f)
 
-analyseSurface :: Maybe SimpleToken -> Maybe SimpleToken -> Language SimpleToken -> Corpus SimpleToken -> Analysis SimpleToken
-analyseSurface art prp l (Corpus ts) = Analysis
-   { resultArticleTotalBaseline        = calculateTotalMajorityBaseline tokenDataEquality articles
-   , resultPrepositionTotalBaseline    = calculateTotalMajorityBaseline tokenDataEquality prepositions
+analyse :: (Token a,Ord a) => Language a -> Corpus a -> Analysis a
+analyse l (Corpus ts) = Analysis
+   { resultArticleTotalBaseline        = calculateTotalMajorityBaseline articles
+   , resultPrepositionTotalBaseline    = calculateTotalMajorityBaseline prepositions
    , resultTopPrepositions             = take 10 prepositions
    , resultTopArticles                 = take 10 articles
    , resultCorpusSize                  = length ts
-   , resultSpecificArticleBaseline     = case art of
-                                              Nothing -> Nothing
-                                              Just t -> Just $ calculateMajorityBaseline (tokenDataEquality t) articles
-   , resultSpecificPrepositionBaseline = case prp of
-                                              Nothing -> Nothing
-                                              Just t -> Just $ calculateMajorityBaseline (tokenDataEquality t) prepositions
+   , resultSpecificArticleBaseline     = Nothing
+   , resultSpecificPrepositionBaseline = Nothing
    } where prepositions = top $ freqMap $ filter (isPreposition l) ts
            articles     = top $ freqMap $ filter (isArticle     l) ts
-
-analyseMorphology = undefined
 
 analyserOptions :: [String] -> IO (Options, [String])
 analyserOptions argv = case getOpt Permute options argv of

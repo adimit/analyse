@@ -18,8 +18,9 @@ import qualified Data.Map as M
 import qualified Data.ByteString.Lazy.Char8 as C
 
 class Token t where
-    getToken :: t -> TokenData
-    getTag :: t -> Tag
+    getToken :: t -> TokenData -- Token's payload data (i.e. the token as it appears in the corpus.)
+    getTag :: t -> Tag      -- ^ Token's PoS tag.
+    (=|=) :: t -> t -> Bool -- ^ The token's equality operator (i.e. when are two tokens considered equal?)
 
 data (Token a) => Analysis a = Analysis { resultArticleTotalBaseline        :: Double
                                         , resultPrepositionTotalBaseline    :: Double
@@ -39,7 +40,9 @@ instance (Token a, Show a) => Show (Analysis a) where
            ++ "\nTotal majority baseline for prepositions: " ++ (show $ resultPrepositionTotalBaseline a)
 
 data SimpleToken = SimpleToken { simpleToken :: TokenData
-                               , simpleTag   :: Tag } deriving (Eq,Ord)
+                               , simpleTag   :: Tag 
+                               } deriving (Eq,Ord)
+
 
 data MorphToken = MorphToken { morphToken :: TokenData
                              , morphTag   :: Tag
@@ -50,10 +53,12 @@ type FrequencyItem a =  (a,Int64)
 instance Token SimpleToken where
     getToken = simpleToken
     getTag   = simpleTag
+    t =|= t' = t == t'
 
 instance Token MorphToken where
     getToken = morphToken
     getTag   = morphTag
+    (MorphToken _ t m) =|= (MorphToken _ t' m') = t == t' && m == m'
 
 instance Show SimpleToken where
     show (SimpleToken td t) = unwords [show td,show t]
